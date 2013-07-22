@@ -30,7 +30,7 @@ Update Dependencies
 In the `project/Build.scala` file add the following lines to the `appDependencies` section after the line containing `javaCore`:
 
     "org.sorm-framework" % "sorm" % "0.3.8",
-    "com.h2database" % "h2" % "1.3.168"
+    "com.h2database" % "h2" % "1.3.168",
 
 This adds the SORM and H2 dependencies to the application.  Refresh the page in order to reload the build definition and dependencies.
 
