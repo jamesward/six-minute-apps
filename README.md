@@ -15,7 +15,7 @@ Setup
 Create a Play App
 -----------------
 
-Create a new Play Framework application using the `Hello Play Framework!` template.  This will compile the application then rut it and it's tests.  You can see the running application at: [http://localhost:9000/](http://localhost:9000/)
+Create a new Play Framework application using the `Hello Play Framework!` template.  This will compile the application then run it and it's tests.  You can see the running application at: [http://localhost:9000/](http://localhost:9000/)
 
 
 Open in an IDE
