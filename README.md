@@ -42,7 +42,7 @@ Remove the following files:
 
 - `app/assets/javascripts/index.js`
 - `app/controllers/MainController.java`
-- `app/controllres/MessageController.java`
+- `app/controllers/MessageController.scala`
 - `test/IntegrationTest.java`
 - `test/MainControllerTest.java`
 - `test/MessageControllerSpec.scala`
