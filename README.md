@@ -1,4 +1,4 @@
-# 6 Minute Apps
+6 Minute Apps
 ===============
 
 This is an introduction to building Modern Web Apps with Play Framework, Scala, CoffeeScript, and LESS
@@ -7,8 +7,8 @@ This is an introduction to building Modern Web Apps with Play Framework, Scala, 
 Setup
 -----
 
-1. [Download Typesafe Activator](http://typesafe.com/platform/getstarted)
-2. Extract the zip and run the `activator` script from a non-interactive shell
+1. [Download Typesafe Activator](http://typesafe.com/platform/getstarted) (or copy it over from a USB)
+2. Extract the zip and run the `activator` or `activator.bat` script from a non-interactive shell
 3. Your browser should open to the Activator UI: [http://localhost:8888](http://localhost:8888)
 
 
@@ -17,6 +17,7 @@ Create a Play App
 
 Create a new Play Framework application using the `Hello Play Framework!` template.  This will compile the application then run it and it's tests.  You can see the running application at: [http://localhost:9000/](http://localhost:9000/)
 
+You may want to read the tutorial for the app before continuing.
 
 Open in an IDE
 --------------
@@ -27,12 +28,12 @@ If you want to use an IDE (Eclipse or IntelliJ), click on *Code*, select *Open*,
 Update Dependencies
 -------------------
 
-In the `project/Build.scala` file add the following lines to the `appDependencies` section after the line containing `javaCore`:
+In the `build.sbt` file add the following lines to the `appDependencies` section after the line containing `javaCore`:
 
     "org.sorm-framework" % "sorm" % "0.3.8",
     "com.h2database" % "h2" % "1.3.168",
 
-This adds the SORM and H2 dependencies to the application.  Refresh the page in order to reload the build definition and dependencies.
+This adds the SORM and H2 dependencies to the application. Refresh the page in order to reload the build definition and dependencies.
 
 
 Cleanup Template Files
