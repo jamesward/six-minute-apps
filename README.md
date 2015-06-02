@@ -62,7 +62,7 @@ Create a Model
 
 Create a new directory under `app` named `models`.  Create a new file named `Bar.scala` in the `app/models` directory containing:
 
-```
+```scala
 package models
 
 import play.api.libs.json.{JsValue, Writes, Json}
@@ -95,7 +95,7 @@ Test the Model
 
 Create a new directory in `test` named `models` and create a new file in that directory called `BarSpec.scala` containing:
 
-```
+```scala
 package models
 
 import javax.inject.Inject
@@ -123,7 +123,7 @@ Create a Controller
 
 Replace the `app/controllers/Application.scala` contents with:
 
-```
+```scala
 package controllers
 
 import javax.inject.Inject
@@ -169,7 +169,7 @@ Test the Controller
 
 Create a directory named `controllers` in the `test` directory and create a new file in the new directory named `ApplicationSpec.scala` containing:
 
-```
+```scala
 package controllers
 
 import javax.inject.Inject
@@ -272,7 +272,7 @@ CoffeeScript UI Logic
 
 Create a new file in a new `app/assets/javascripts` directory named `hello.coffee` containing:
 
-```
+```coffeescript
 getBars = () ->
   $.get "/bars", (bars) ->
     $("#bars").empty()
