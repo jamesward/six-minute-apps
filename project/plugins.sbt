@@ -1,8 +1,7 @@
-// Comment to get more information during initialization
-logLevel := Level.Warn
+addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.4.0")
 
-// The Typesafe repository
-resolvers += "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/"
+addSbtPlugin("com.typesafe.sbt" % "sbt-digest" % "1.1.0")
 
-// Use the Play sbt plugin for Play projects
-addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.2.0")
+addSbtPlugin("com.typesafe.sbt" % "sbt-less" % "1.1.0")
+
+addSbtPlugin("com.typesafe.sbt" % "sbt-coffeescript" % "1.0.0")

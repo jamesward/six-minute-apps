@@ -15,25 +15,33 @@ Setup
 Create a Play App
 -----------------
 
-Create a new Play Framework application using the `Hello Play Framework!` template.  This will compile the application then run it and it's tests.  You can see the running application at: [http://localhost:9000/](http://localhost:9000/)
+1. Create a new Play Framework application using the `Play Scala Seed` template.
+2. As of June 2, 2015 there is [a bug in Activator](https://github.com/typesafehub/activator/issues/1034) that prevents the loading of the project.  To workaround this bug, select *Code > project > play-fork-run.sbt* and change the version of the `sbt-fork-run-plugin` to `2.4.0`.  Then save the file.
+3. Run the application by selecting *Run* and then the *Run* button.  You can see the running application at: [http://localhost:9000/](http://localhost:9000/)
+4. Run the tests by selecting *Test* and then the *Test* button.
 
 You may want to read the tutorial for the app before continuing.
 
 Open in an IDE
 --------------
 
-If you want to use an IDE (Eclipse or IntelliJ), click on *Code*, select *Open*, and then select your IDE.  This will walk you through the steps to generate the project files and open the project.  Alternatively you can edit files in the Activator UI.
+If you want to use an IDE (Eclipse or IntelliJ) see: https://www.playframework.com/documentation/2.4.x/IDE
 
 
 Update Dependencies
 -------------------
 
-In the `build.sbt` file add the following lines to the `appDependencies` section after the line containing `javaCore`:
+In the `build.sbt` file replace the `libraryDependencies` section with:
 
-    "org.sorm-framework" % "sorm" % "0.3.8",
-    "com.h2database" % "h2" % "1.3.168",
+    libraryDependencies ++= Seq(
+      "org.sorm-framework" % "sorm" % "0.3.18",
+      "com.h2database" % "h2" % "1.4.187",
+      "org.webjars" %% "webjars-play" % "2.4.0-1",
+      "org.webjars" % "bootstrap" % "3.3.4",
+      specs2 % Test
+    )
 
-This adds the SORM and H2 dependencies to the application. Refresh the page in order to reload the build definition and dependencies.
+This adds the SORM, H2, and WebJar dependencies to the application.  Save the file to reload the changes.  Then re-Run the application.
 
 
 Cleanup Template Files
@@ -41,22 +49,10 @@ Cleanup Template Files
 
 Remove the following files:
 
-- `app/assets/javascripts/index.js`
-- `app/controllers/MainController.java`
-- `app/controllers/MessageController.scala`
-- `test/IntegrationTest.java`
-- `test/MainControllerTest.java`
-- `test/MessageControllerSpec.scala`
-
-Delete the following lines from the `conf/routes` file:
-
-    GET     /                           controllers.MainController.index()
-    GET     /message                    controllers.MessageController.getMessage()
-    GET     /assets/javascripts/routes  controllers.MessageController.javascriptRoutes()
-
-Remove the following line from the `app/views/main.scala.html` file:
-
-    <script type="text/javascript" src="@routes.MessageController.javascriptRoutes"></script>
+- `public/javascripts`
+- `public/stylesheets`
+- `test/ApplicationSpec.scala`
+- `test/IntegrationSpec.scala`
 
 Verify that the app compiles without any errors.
 
@@ -87,7 +83,7 @@ object Bar {
 }
 
 import sorm._
-object DB extends Instance(
+class DB extends Instance(
   entities = Set(Entity[Bar]()),
   url = "jdbc:h2:mem:test"
 )
@@ -97,19 +93,20 @@ object DB extends Instance(
 Test the Model
 --------------
 
-Create a new file in the `test` directory named `BarSpec.scala` containing:
+Create a new directory in `test` named `models` and create a new file in that directory called `BarSpec.scala` containing:
 
 ```
-import models.{DB, Bar}
+package models
 
-import org.specs2.mutable.Specification
-import play.api.test._
+import javax.inject.Inject
 
-class BarSpec extends Specification {
+import org.specs2.mutable._
+
+class BarSpec @Inject() (db: DB) extends Specification {
 
   "Bar" should {
-    "be creatable" in new WithApplication {
-      val bar = DB.save(Bar("foo"))
+    "be creatable" in {
+      val bar = db.save(Bar("foo"))
       bar.id must not (beNull)
       bar.name must beEqualTo ("foo")
     }
@@ -118,16 +115,18 @@ class BarSpec extends Specification {
 }
 ```
 
-In the *Test* tab, select *Start* to re-run the tests.  The only test should pass.
+In the *Test* tab, select *Test* to re-run the tests.  The only test should pass.
 
 
 Create a Controller
 -------------------
 
-In the `app/controllers` directory create a new file named `Application.scala` containing:
+Replace the `app/controllers/Application.scala` contents with:
 
 ```
 package controllers
+
+import javax.inject.Inject
 
 import models.{DB, Bar}
 import models.Bar._
@@ -136,19 +135,19 @@ import play.api.libs.json.Json
 import play.api.mvc.{Action, Controller}
 
 
-object Application extends Controller {
+class Application @Inject() (db: DB) extends Controller {
   
   def index = Action {
     Ok(views.html.index("hello, world"))
   }
   
   def bars = Action {
-    val bars = DB.query[Bar].fetch()
+    val bars = db.query[Bar].fetch()
     Ok(Json.toJson(bars))
   }
   
   def addBar = Action(parse.json) { request =>
-    val bar = DB.save(request.body.as[Bar])
+    val bar = db.save(request.body.as[Bar])
     Ok(Json.toJson(bar))
   }
   
@@ -159,41 +158,40 @@ object Application extends Controller {
 Map the routes
 --------------
 
-In the `conf/routes` file, add the following at line 5:
+In the `conf/routes` file, add the following:
 
-    GET     /                           controllers.Application.index
-    GET     /bars                       controllers.Application.bars
-    POST    /bars                       controllers.Application.addBar
+    GET         /bars                 controllers.Application.bars
+    POST        /bars                 controllers.Application.addBar
 
 
 Test the Controller
 -------------------
 
-Create a new file in the `test` directory named `ApplicationSpec.scala` containing:
+Create a directory named `controllers` in the `test` directory and create a new file in the new directory named `ApplicationSpec.scala` containing:
 
 ```
-package test
+package controllers
 
-import controllers.Application
+import javax.inject.Inject
+
 import models.Bar
-
 import org.specs2.mutable._
 import play.api.libs.json.Json
-import play.api.test._
 import play.api.test.Helpers._
+import play.api.test._
 
-class ApplicationSpec extends Specification {
+class ApplicationSpec @Inject() (appController: Application) extends Specification {
     
   "Application" should {
     
-    "add a bar" in new WithApplication {
-      val addBar = Application.addBar()(FakeRequest(POST, "/bars").withBody(Json.parse("""{"name": "foo"}""")))
+    "add a bar" in  {
+      val addBar = appController.addBar()(FakeRequest(POST, "/bars").withBody(Json.parse("""{"name": "foo"}""")))
       status(addBar) must equalTo(OK)
       Json.parse(contentAsString(addBar)).as[Bar].name must beEqualTo ("foo")
     }
     
-    "get all bars" in new WithApplication {
-      val bars = Application.bars()(FakeRequest(GET, "/bars"))
+    "get all bars" in {
+      val bars = appController.bars()(FakeRequest(GET, "/bars"))
       status(bars) must equalTo(OK)
       Json.parse(contentAsString(bars)).as[Seq[Bar]].length must beGreaterThan (0)
     }
@@ -202,30 +200,77 @@ class ApplicationSpec extends Specification {
 }
 ```
 
-In the *Test* tab, select *Start* to re-run the tests.  All three tests should pass.
+In *Test*, select *Test* to re-run the tests.  All three tests should pass.
+
+
+Asset Compiler Setup
+--------------------
+
+
+Add the following lines to the `build.sbt` file making sure there is an empty line before and after each line:
+
+    LessKeys.compress in Assets := true
+    
+    pipelineStages := Seq(digest)
+    
+    includeFilter in (Assets, LessKeys.less) := "*.less"
 
 
 HTML UI
 -------
 
-In the `app/views/index.scala.html` file, replace the contents beneath the `script` tag with:
+Add a new route for the WebJars in the `conf/routes` file:
 
+    GET         /webjars/org.webjars/*file        controllers.WebJarAssets.at(file)
+
+In the `app/views/index.scala.html` file, replace `@play20.welcome(message)` with:
+
+    <div class="container">
+        <ul id="bars"></ul>
+        <form id="barForm" method="post" action="/bars">
+            <label for="barName">Name</label>
+            <input id="barName" required>
+            <button>Add Bar</button>
+        </form>
+    </div>
+
+In the `app/views/main.scala.html` file add Bootstrap and jQuery loading below the `<title>@title</title>` line:
+
+    <link rel='stylesheet' href='@routes.WebJarAssets.at(WebJarAssets.locate("bootstrap.min.css"))'>
+    <script type='text/javascript' src='@routes.WebJarAssets.at(WebJarAssets.locate("jquery.min.js"))'></script>
+
+Replace the contents of the `<body>` section with:
+
+    <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
         <div class="container">
-            <ul id="bars"></ul>
-            <form id="barForm" method="post" action="/bars">
-                <label for="barName">Name</label>
-                <input id="barName" required>
-                <button>Add Bar</button>
-            </form>
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">@title</a>
+            </div>
         </div>
+    </div>
+    <div class="container">
+        @content
+    </div>
 
-Verify that the app now contains the form: [http://localhost:9000/](http://localhost:9000/)
+Verify that the app now displays the Bootstrap Nav Bar: [http://localhost:9000/](http://localhost:9000/)
+
+
+LESS Stylesheet
+---------------
+
+Create a new file in a new `app/assets/stylesheets` directory named `main.less` containing:
+
+    body {
+      padding-top: 50px;
+    }
+
+Verify that the app now displays a simple form: [http://localhost:9000/](http://localhost:9000/)
 
 
 CoffeeScript UI Logic
 ---------------------
 
-Create a new file in the `app/assets/javascripts/` directory named `index.coffee` containing:
+Create a new file in a new `app/assets/javascripts` directory named `hello.coffee` containing:
 
 ```
 getBars = () ->
@@ -248,4 +293,4 @@ $ ->
         $("#barName").val("")
 ```
 
-Verify the app now works: [http://localhost:9000/](http://localhost:9000/)
+Verify the app now works and that after adding a new `Bar` it is displayed: [http://localhost:9000/](http://localhost:9000/)

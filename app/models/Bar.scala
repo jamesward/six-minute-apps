@@ -18,7 +18,7 @@ object Bar {
 }
 
 import sorm._
-object DB extends Instance(
+class DB extends Instance(
   entities = Set(Entity[Bar]()),
   url = "jdbc:h2:mem:test"
 )

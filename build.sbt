@@ -1,23 +1,30 @@
-name := """hello-play"""
+name := """play-scala"""
 
 version := "1.0-SNAPSHOT"
 
+lazy val root = (project in file(".")).enablePlugins(PlayScala)
+
+scalaVersion := "2.11.6"
+
 libraryDependencies ++= Seq(
-  // Select Play modules
-  //jdbc,      // The JDBC connection pool and the play.api.db API
-  //anorm,     // Scala RDBMS Library
-  //javaJdbc,  // Java database API
-  //javaEbean, // Java Ebean plugin
-  //javaJpa,   // Java JPA plugin
-  //filters,   // A set of built-in filters
-  javaCore,  // The core Java API
-  "org.sorm-framework" % "sorm" % "0.3.8",
-  "com.h2database" % "h2" % "1.3.168",
-  // WebJars pull in client-side web libraries
-  "org.webjars" %% "webjars-play" % "2.2.0",
-  "org.webjars" % "bootstrap" % "2.3.1"
-  // Add your own project dependencies in the form:
-  // "group" % "artifact" % "version"
+  "org.sorm-framework" % "sorm" % "0.3.18",
+  "com.h2database" % "h2" % "1.4.187",
+  "org.webjars" %% "webjars-play" % "2.4.0-1",
+  "org.webjars" % "bootstrap" % "3.3.4",
+  specs2 % Test
 )
 
-play.Project.playScalaSettings
+resolvers += "scalaz-bintray" at "http://dl.bintray.com/scalaz/releases"
+
+// Play provides two styles of routers, one expects its actions to be injected, the
+// other, legacy style, accesses its actions statically.
+routesGenerator := InjectedRoutesGenerator
+
+
+fork in run := true
+
+LessKeys.compress in Assets := true
+
+pipelineStages := Seq(digest)
+
+includeFilter in (Assets, LessKeys.less) := "*.less"
