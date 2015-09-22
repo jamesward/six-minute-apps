@@ -28,3 +28,5 @@ LessKeys.compress in Assets := true
 pipelineStages := Seq(digest)
 
 includeFilter in (Assets, LessKeys.less) := "*.less"
+
+parallelExecution in Test := false
